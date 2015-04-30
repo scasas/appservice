@@ -7,14 +7,7 @@ import subprocess
 
 msj = ''
 
-def is_integer(x):
-    try:
-        int(x)
-        return False
-    except ValueError:
-        print('Please enter an integer above 2')
-        return True
-
+# defino colores para los mensajes
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -23,6 +16,7 @@ class bcolors:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
 
+# compruebo que la ejecución de mi script se hago con el usuario root
 if os.geteuid() != 0:
     print 'Debes tener privilegios root para este script.'
     sys.exit(1)
@@ -36,47 +30,53 @@ else:
         print msj
         msj = ''
 
+        # A cotinuacion compruebo el estado de los servicios en el sistema
+
+        # APACHE2
         try:
             subprocess.check_output("sudo service apache2 status", shell=True)
             apache = bcolors.OKGREEN + 'INICIADO' + bcolors.ENDC
         except subprocess.CalledProcessError, e:
             apache = bcolors.WARNING + 'APAGADO' + bcolors.ENDC
 
-
+        # MYSQL
         mysql = subprocess.check_output("sudo service mysql status", shell=True)
         if 'stop' in mysql:
             mysql = bcolors.WARNING + 'APAGADO' + bcolors.ENDC
         else:
             mysql = bcolors.OKGREEN + 'INICIADO' + bcolors.ENDC
 
-
+        # POSTGRES
         try:
             postgresql = subprocess.check_output("sudo service postgresql status", shell=True)
             postgresql = bcolors.OKGREEN + 'INICIADO' + bcolors.ENDC
         except subprocess.CalledProcessError, e:
             postgresql = bcolors.WARNING + 'APAGADO' + bcolors.ENDC
 
-
+        # SSH
         ssh = subprocess.check_output("sudo service ssh status", shell=True)
         if 'stop' in ssh:
             ssh = bcolors.WARNING + 'APAGADO' + bcolors.ENDC
         else:
             ssh = bcolors.OKGREEN + 'INICIADO' + bcolors.ENDC
 
-        
+        # CUPS
         cups = subprocess.check_output("sudo service cups status", shell=True)
         if 'stop' in cups:
             cups = bcolors.WARNING + 'APAGADO' + bcolors.ENDC
         else:
             cups = bcolors.OKGREEN + 'INICIADO' + bcolors.ENDC
 
-
+        # FIREWALL CON IPTABLES
         iptables = subprocess.check_output("sudo iptables -L -n", shell=True)
         if "DROP" in iptables:
             iptables = bcolors.OKGREEN + 'INICIADO' + bcolors.ENDC
         else:
             iptables = bcolors.WARNING + 'APAGADO' + bcolors.ENDC
 
+        
+
+        # Muestro el estado de los servicios y el numero para cambiarlo
         print '='*40
         print 'Item \t Service \t Estado'
         print '-'*40
@@ -92,12 +92,14 @@ else:
         print '='*40
 
         
+        # compruebo que la opción sea un numero entero       
         try:
             option = int(input('Seleccione el Service: '))
         except (SyntaxError, NameError):
             msj = bcolors.OKBLUE + 'Opcion ingresada NO ES VALIDA!!! \nIngrese nuevamente la Opcion' + bcolors.ENDC
 
         
+        # niego el estado actual de acuerdo al nuemero que se haya ingresado
         if option != 100:
 
             if option == 1:
